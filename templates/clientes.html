@@ -1,35 +1,77 @@
-
-{% extends "layout.html" %}
-{% block content %}
-<div class="card p-4 rounded mb-4">
-  <h3 class="font-semibold mb-2">Agregar cliente</h3>
-  <form method="post" action="{{ url_for('clientes_add') }}" class="space-y-2">
-    <input name="nombre" placeholder="Nombre" required class="w-full p-2 rounded bg-gray-800"/>
-    <input name="direccion" placeholder="Dirección" class="w-full p-2 rounded bg-gray-800"/>
-    <input name="telefono" placeholder="Teléfono" class="w-full p-2 rounded bg-gray-800"/>
-    <input name="correo" placeholder="Correo" class="w-full p-2 rounded bg-gray-800" type="email"/>
-    <select name="estado" class="w-full p-2 rounded bg-gray-800">
-      <option value="Normal" selected>Normal</option><option value="Corte">Corte</option>
-    </select>
-    <div><button class="py-2 px-4 rounded bg-emerald-600 w-full">Agregar</button></div>
-  </form>
-</div>
-<div class="card p-4 rounded">
-  <h3 class="font-semibold mb-2">Clientes registrados</h3>
-  <div class="overflow-x-auto">
-    <table class="w-full text-sm">
-      <thead class="text-slate-400"><tr><th class="p-2">ID</th><th class="p-2">Nombre</th><th class="p-2">Teléfono</th><th class="p-2">Estado</th><th class="p-2">Acción</th></tr></thead>
-      <tbody>
-        {% for c in clientes %}
-        <tr class="border-t border-slate-800"><td class="p-2">{{ c['id'] }}</td><td class="p-2">{{ c['nombre'] }}</td><td class="p-2">{{ c['telefono'] }}</td><td class="p-2">{{ c['estado_servicio'] }}</td><td class="p-2"><a href="{{ url_for('clientes_edit', cliente_id=c['id']) }}" class="text-sky-400">Editar</a></td><a href="{{ url_for('suspender_servicio', cliente_id=cliente.id) }}" 
-   onclick="return confirm('¿Deseas suspender el servicio de {{ cliente.nombre }}?');"
-   class="btn btn-danger btn-sm">
-   Suspender Servicio
-</a>
-</tr>
-        {% endfor %}
-      </tbody>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Pagos TECNOENLACE - Clientes</title>
+    <!-- Bootstrap CSS CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #121212;
+            color: #f5f5f5;
+        }
+        .table-dark th, .table-dark td {
+            vertical-align: middle;
+        }
+        .btn-sm {
+            font-size: 0.8rem;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .estado-normal { color: #28a745; font-weight: bold; }
+        .estado-corte { color: #dc3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Clientes</h1>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-secondary mb-3">Volver al Dashboard</a>
+    <table class="table table-dark table-striped table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for cliente in clientes %}
+            <tr>
+                <td>{{ cliente['id'] }}</td>
+                <td>{{ cliente['nombre'] }}</td>
+                <td>{{ cliente['telefono'] }}</td>
+                <td>
+                    {% if cliente['estado_servicio'].lower() == 'corte' %}
+                        <span class="estado-corte">Corte</span>
+                    {% else %}
+                        <span class="estado-normal">Normal</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- Botón Editar -->
+                    <a href="{{ url_for('clientes_edit', cliente_id=cliente['id']) }}" class="btn btn-primary btn-sm me-1">Editar</a>
+                    
+                    <!-- Botón Suspender Servicio -->
+                    <a href="{{ url_for('suspender_servicio', cliente_id=cliente['id']) }}"
+                       onclick="return confirm('¿Deseas suspender el servicio de {{ cliente["nombre"] }}?');"
+                       class="btn btn-danger btn-sm">
+                       Suspender
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
-  </div>
 </div>
-{% endblock %}
+
+<!-- Bootstrap JS Bundle CDN -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
