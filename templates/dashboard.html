@@ -1,0 +1,18 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="grid sm:grid-cols-3 gap-4">
+  <div class="card p-4 rounded">
+    <h3 class="text-sm text-slate-300">Total clientes</h3>
+    <p class="text-2xl font-bold">{{ total_clientes }}</p>
+  </div>
+  <div class="card p-4 rounded">
+    <h3 class="text-sm text-slate-300">Pagos últimos 30 días</h3>
+    <p class="text-2xl font-bold">{{ pagos_30 }}</p>
+  </div>
+  <div class="card p-4 rounded">
+    <h3 class="text-sm text-slate-300">Clientes en corte</h3>
+    <p class="text-2xl font-bold">{{ en_corte }}</p>
+  </div>
+</div>
+{% endblock %}

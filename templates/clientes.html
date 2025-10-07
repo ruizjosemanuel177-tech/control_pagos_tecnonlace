@@ -1,0 +1,30 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="card p-4 rounded mb-4">
+  <h3 class="font-semibold mb-2">Agregar cliente</h3>
+  <form method="post" action="{{ url_for('clientes_add') }}" class="space-y-2">
+    <input name="nombre" placeholder="Nombre" required class="w-full p-2 rounded bg-gray-800"/>
+    <input name="direccion" placeholder="Dirección" class="w-full p-2 rounded bg-gray-800"/>
+    <input name="telefono" placeholder="Teléfono" class="w-full p-2 rounded bg-gray-800"/>
+    <input name="correo" placeholder="Correo" class="w-full p-2 rounded bg-gray-800" type="email"/>
+    <select name="estado" class="w-full p-2 rounded bg-gray-800">
+      <option value="Normal" selected>Normal</option><option value="Corte">Corte</option>
+    </select>
+    <div><button class="py-2 px-4 rounded bg-emerald-600 w-full">Agregar</button></div>
+  </form>
+</div>
+<div class="card p-4 rounded">
+  <h3 class="font-semibold mb-2">Clientes registrados</h3>
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm">
+      <thead class="text-slate-400"><tr><th class="p-2">ID</th><th class="p-2">Nombre</th><th class="p-2">Teléfono</th><th class="p-2">Estado</th><th class="p-2">Acción</th></tr></thead>
+      <tbody>
+        {% for c in clientes %}
+        <tr class="border-t border-slate-800"><td class="p-2">{{ c['id'] }}</td><td class="p-2">{{ c['nombre'] }}</td><td class="p-2">{{ c['telefono'] }}</td><td class="p-2">{{ c['estado_servicio'] }}</td><td class="p-2"><a href="{{ url_for('clientes_edit', cliente_id=c['id']) }}" class="text-sky-400">Editar</a></td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

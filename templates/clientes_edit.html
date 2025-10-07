@@ -1,0 +1,18 @@
+
+{% extends "layout.html" %}
+{% block content %}
+<div class="card p-4 rounded max-w-2xl mx-auto">
+  <h3 class="font-semibold mb-2">Editar cliente</h3>
+  <form method="post" class="space-y-2">
+    <input name="nombre" value="{{ cliente['nombre'] }}" required class="w-full p-2 rounded bg-gray-800"/>
+    <input name="direccion" value="{{ cliente['direccion'] }}" class="w-full p-2 rounded bg-gray-800"/>
+    <input name="telefono" value="{{ cliente['telefono'] }}" class="w-full p-2 rounded bg-gray-800"/>
+    <input name="correo" value="{{ cliente['correo'] }}" class="w-full p-2 rounded bg-gray-800" type="email"/>
+    <select name="estado" class="w-full p-2 rounded bg-gray-800">
+      <option value="Normal" {% if cliente['estado_servicio']=='Normal' %}selected{% endif %}>Normal</option>
+      <option value="Corte" {% if cliente['estado_servicio']=='Corte' %}selected{% endif %}>Corte</option>
+    </select>
+    <div><button class="py-2 px-4 rounded bg-sky-600">Guardar cambios</button></div>
+  </form>
+</div>
+{% endblock %}
