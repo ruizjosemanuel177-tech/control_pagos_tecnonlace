@@ -172,9 +172,30 @@ def export_excel():
     return send_file(bio, as_attachment=True, download_name="Reporte_Pagos_TECNOENLACE.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     with app.app_context():
+        # 1. Inicializar las tablas si no existen (no borra nada)
         init_db()
-        print(" Base de datos inicializada correctamente.")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+        
+        db = get_db()
+        cur = db.cursor()
+        
+        # 2. Agregar usuarios internos solo si no existen
+        usuarios_internos = [
+            ("José Manuel", "jose@correo.com", "3001234567"),
+            ("Maria Lopez", "maria@correo.com", "3109876543"),
+            ("Pedro Ruiz", "pedro@correo.com", "3205557788")
+        ]
+        for nombre, correo, telefono in usuarios_internos:
+            # INSERT OR IGNORE evita duplicados
+            cur.execute("""
+                INSERT OR IGNORE INTO usuarios (nombre, correo, telefono)
+                VALUES (?, ?, ?)
+            """, (nombre, correo, telefono))
+        
+        db.commit()
+        print("✅ Base de datos y usuarios internos inicializados correctamente.")
+    
+    # 3. Iniciar la app
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
