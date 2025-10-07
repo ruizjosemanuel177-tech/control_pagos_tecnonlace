@@ -133,6 +133,17 @@ def suspender_servicio(cliente_id):
     flash("Servicio suspendido para el cliente.", "warning")
     return redirect(url_for("clientes"))
 
+@app.route("/clientes/activar/<int:cliente_id>")
+def activar_servicio(cliente_id):
+    if not logged_in(): 
+        return redirect(url_for("login"))
+    db = get_db()
+    cur = db.cursor()
+    cur.execute("UPDATE clientes SET estado_servicio='Normal' WHERE id=?", (cliente_id,))
+    db.commit()
+    flash("Servicio activado para el cliente.", "success")
+    return redirect(url_for("clientes"))
+
 # --- PAGOS ---
 @app.route("/pagos")
 def pagos():
