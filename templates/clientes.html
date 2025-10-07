@@ -21,7 +21,12 @@
       <thead class="text-slate-400"><tr><th class="p-2">ID</th><th class="p-2">Nombre</th><th class="p-2">Teléfono</th><th class="p-2">Estado</th><th class="p-2">Acción</th></tr></thead>
       <tbody>
         {% for c in clientes %}
-        <tr class="border-t border-slate-800"><td class="p-2">{{ c['id'] }}</td><td class="p-2">{{ c['nombre'] }}</td><td class="p-2">{{ c['telefono'] }}</td><td class="p-2">{{ c['estado_servicio'] }}</td><td class="p-2"><a href="{{ url_for('clientes_edit', cliente_id=c['id']) }}" class="text-sky-400">Editar</a></td></tr>
+        <tr class="border-t border-slate-800"><td class="p-2">{{ c['id'] }}</td><td class="p-2">{{ c['nombre'] }}</td><td class="p-2">{{ c['telefono'] }}</td><td class="p-2">{{ c['estado_servicio'] }}</td><td class="p-2"><a href="{{ url_for('clientes_edit', cliente_id=c['id']) }}" class="text-sky-400">Editar</a></td><a href="{{ url_for('suspender_servicio', cliente_id=cliente.id) }}" 
+   onclick="return confirm('¿Deseas suspender el servicio de {{ cliente.nombre }}?');"
+   class="btn btn-danger btn-sm">
+   Suspender Servicio
+</a>
+</tr>
         {% endfor %}
       </tbody>
     </table>
