@@ -173,29 +173,11 @@ def export_excel():
 
 
 if __name__ == "__main__":
+    if not os.path.exists(DB_PATH):
+        import sqlite3
+        with sqlite3.connect(DB_PATH) as conn:
+            pass
     with app.app_context():
-        # 1. Inicializar las tablas si no existen (no borra nada)
         init_db()
-        
-        db = get_db()
-        cur = db.cursor()
-        
-        # 2. Agregar usuarios internos solo si no existen
-        usuarios_internos = [
-            ("José Manuel", "jose@correo.com", "3001234567"),
-            ("Maria Lopez", "maria@correo.com", "3109876543"),
-            ("Pedro Ruiz", "pedro@correo.com", "3205557788")
-        ]
-        for nombre, correo, telefono in usuarios_internos:
-            # INSERT OR IGNORE evita duplicados
-            cur.execute("""
-                INSERT OR IGNORE INTO usuarios (nombre, correo, telefono)
-                VALUES (?, ?, ?)
-            """, (nombre, correo, telefono))
-        
-        db.commit()
-        print("✅ Base de datos y usuarios internos inicializados correctamente.")
-    
-    # 3. Iniciar la app
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
 
