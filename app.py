@@ -4,6 +4,33 @@ import sqlite3, os, io
 from datetime import datetime
 from openpyxl import Workbook
 
+import sqlite3
+
+def init_db():
+    conn = sqlite3.connect('database.db')
+    cur = conn.cursor()
+
+    # Crear tabla CLIENTES si no existe
+    cur.execute('''
+        CREATE TABLE IF NOT EXISTS clientes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            nombre TEXT NOT NULL,
+            telefono TEXT,
+            email TEXT,
+            fecha_registro TEXT
+        )
+    ''')
+
+    # Si tienes más tablas, agrégalas aquí también:
+    # cur.execute('''CREATE TABLE IF NOT EXISTS pagos (... )''')
+
+    conn.commit()
+    conn.close()
+
+# Llamar a la función al iniciar la app
+init_db()
+
+
 APP_SECRET = "tecnonlace_secret_2025"
 DB_PATH = os.path.join(os.path.dirname(__file__), "pagos.db")
 USERNAME = "TECNOENLACE"
@@ -11,6 +38,8 @@ PASSWORD = "TECNOENLACE2025"
 
 app = Flask(__name__)
 app.secret_key = APP_SECRET
+
+DATABASE = 'database.db'
 
 def get_db():
     db = getattr(g, "_database", None)
