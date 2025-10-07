@@ -142,7 +142,6 @@ def export_excel():
     bio = io.BytesIO(); wb.save(bio); bio.seek(0)
     return send_file(bio, as_attachment=True, download_name="Reporte_Pagos_TECNOENLACE.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-import os
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
