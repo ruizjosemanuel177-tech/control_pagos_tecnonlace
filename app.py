@@ -172,7 +172,9 @@ def export_excel():
     return send_file(bio, as_attachment=True, download_name="Reporte_Pagos_TECNOENLACE.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+if __name__ == '__main__':
+    with app.app_context():
+        init_db()
+        print(" Base de datos inicializada correctamente.")
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
