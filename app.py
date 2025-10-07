@@ -173,11 +173,6 @@ def export_excel():
 
 
 if __name__ == "__main__":
-    if not os.path.exists(DB_PATH):
-        import sqlite3
-        with sqlite3.connect(DB_PATH) as conn:
-            pass
-    with app.app_context():
-        init_db()
-    app.run(host="0.0.0.0", port=5000, debug=False)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
 
