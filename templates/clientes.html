@@ -27,12 +27,4 @@
     </table>
   </div>
 </div>
-<td>
-  <a href="{{ url_for('suspender_servicio', cliente_id=cliente.id) }}" 
-     onclick="return confirm('¿Suspender el servicio de {{ cliente.nombre }}?');"
-     class="btn btn-danger btn-sm">
-     Suspender Servicio
-  </a>
-</td>
-
 {% endblock %}
