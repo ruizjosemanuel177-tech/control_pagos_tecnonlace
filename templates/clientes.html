@@ -1,72 +1,30 @@
 {% extends "layout.html" %}
-
 {% block content %}
-<div class="p-4">
-    <h2 class="text-2xl font-bold mb-4 text-slate-200">Lista de Clientes</h2>
+<h2>Gestión de Clientes</h2>
 
-    <!-- Mensajes de flash -->
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        <div class="mb-4">
-          {% for category, message in messages %}
-            <div class="p-2 mb-2 rounded {{ 'bg-green-500 text-white' if category=='success' else 'bg-red-500 text-white' if category=='danger' else 'bg-yellow-400 text-black' }}">
-              {{ message }}
-            </div>
-          {% endfor %}
-        </div>
-      {% endif %}
-    {% endwith %}
-
-    <!-- Tabla de clientes -->
-    <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-slate-700">
-            <thead class="bg-slate-800 text-slate-200">
-                <tr>
-                    <th class="p-2 text-left">ID</th>
-                    <th class="p-2 text-left">Nombre</th>
-                    <th class="p-2 text-left">Teléfono</th>
-                    <th class="p-2 text-left">Estado</th>
-                    <th class="p-2 text-left">Acciones</th>
-                </tr>
-            </thead>
-            <tbody class="bg-slate-900 divide-y divide-slate-700">
-                {% for c in clientes %}
-                <tr>
-                    <td class="p-2">{{ c['id'] }}</td>
-                    <td class="p-2">{{ c['nombre'] }}</td>
-                    <td class="p-2">{{ c['telefono'] }}</td>
-                    <td class="p-2">{{ c['estado_servicio'] }}</td>
-                    <td class="p-2 flex gap-2">
-                        <a href="{{ url_for('clientes_edit', cliente_id=c['id']) }}" class="px-2 py-1 bg-sky-500 text-white rounded hover:bg-sky-600">Editar</a>
-
-                        {% if c['estado_servicio'] == 'Normal' %}
-                            <a href="{{ url_for('suspender_servicio', cliente_id=c['id']) }}" class="px-2 py-1 bg-red-500 text-white rounded hover:bg-red-600">Suspender</a>
-                        {% else %}
-                            <a href="{{ url_for('activar_servicio', cliente_id=c['id']) }}" class="px-2 py-1 bg-green-500 text-white rounded hover:bg-green-600">Activar</a>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Formulario agregar cliente -->
-    <div class="mt-6 p-4 bg-slate-800 rounded">
-        <h3 class="text-xl font-semibold mb-2 text-slate-200">Agregar Nuevo Cliente</h3>
-        <form action="{{ url_for('clientes_add') }}" method="POST" class="flex flex-col gap-2">
-            <input type="text" name="nombre" placeholder="Nombre" class="p-2 rounded bg-slate-700 text-slate-200" required>
-            <input type="text" name="direccion" placeholder="Dirección" class="p-2 rounded bg-slate-700 text-slate-200">
-            <input type="text" name="telefono" placeholder="Teléfono" class="p-2 rounded bg-slate-700 text-slate-200">
-            <input type="email" name="correo" placeholder="Correo" class="p-2 rounded bg-slate-700 text-slate-200">
-            <select name="estado" class="p-2 rounded bg-slate-700 text-slate-200">
-                <option value="Normal" selected>Normal</option>
-                <option value="Corte">Corte</option>
-            </select>
-            <button type="submit" class="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600">Agregar Cliente</button>
-        </form>
-    </div>
-</div>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+    </tr>
+    {% for c in clientes %}
+    <tr>
+        <td>{{ c['id'] }}</td>
+        <td>{{ c['nombre'] }}</td>
+        <td>{{ c['estado'] }}</td>
+        <td>
+            {% if c['estado'] == 'Activo' %}
+                <a href="{{ url_for('cortar', id=c['id']) }}" class="btn danger">Cortar</a>
+            {% else %}
+                <a href="{{ url_for('activar', id=c['id']) }}" class="btn success">Activar</a>
+            {% endif %}
+            <a href="{{ url_for('borrar_cliente', id=c['id']) }}" class="btn delete">Eliminar</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
 {% endblock %}
 
 
