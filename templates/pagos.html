@@ -1,32 +1,53 @@
-
 {% extends "layout.html" %}
 {% block content %}
-<div class="card p-4 rounded mb-4">
-  <h3 class="font-semibold mb-2">Registrar pago</h3>
-  <form method="post" action="{{ url_for('pagos_add') }}" class="space-y-2">
-    <select name="cliente_id" required class="w-full p-2 rounded bg-gray-800">
-      <option value="">-- Seleccione cliente --</option>
-      {% for c in clientes %}<option value="{{ c['id'] }}">{{ c['nombre'] }}</option>{% endfor %}
-    </select>
-    <input name="monto" placeholder="Monto" required class="w-full p-2 rounded bg-gray-800" inputmode="decimal"/>
-    <input name="fecha" type="date" required class="w-full p-2 rounded bg-gray-800"/>
-    <select name="metodo" class="w-full p-2 rounded bg-gray-800"><option>Nequi</option><option>Transferencia</option><option>Efectivo</option><option>Tarjeta</option><option>Otro</option></select>
-    <input name="mes" placeholder="Mes correspondiente (opcional)" class="w-full p-2 rounded bg-gray-800"/>
-    <textarea name="observaciones" class="w-full p-2 rounded bg-gray-800"></textarea>
-    <div><button class="py-2 px-4 rounded bg-emerald-600 w-full">Registrar pago</button></div>
-  </form>
-</div>
-<div class="card p-4 rounded">
-  <h3 class="font-semibold mb-2">Pagos recientes</h3>
-  <div class="overflow-x-auto">
-    <table class="w-full text-sm">
-      <thead class="text-slate-400"><tr><th class="p-2">ID</th><th class="p-2">Cliente</th><th class="p-2">Monto</th><th class="p-2">Fecha</th><th class="p-2">Método</th><th class="p-2">Mes</th></tr></thead>
-      <tbody>
-        {% for p in pagos %}
-        <tr class="border-t border-slate-800"><td class="p-2">{{ p['id'] }}</td><td class="p-2">{{ p['cliente_nombre'] }}</td><td class="p-2">{{ '%.2f'|format(p['monto']) }}</td><td class="p-2">{{ p['fecha_pago'] }}</td><td class="p-2">{{ p['metodo_pago'] }}</td><td class="p-2">{{ p['mes_correspondiente'] }}</td></tr>
+<h2>Registro de Pagos</h2>
+
+<form method="POST" action="{{ url_for('nuevo_pago') }}" class="form">
+    <label>Cliente:</label>
+    <select name="cliente_id" required>
+        {% for c in clientes %}
+        <option value="{{ c['id'] }}">{{ c['nombre'] }}</option>
         {% endfor %}
-      </tbody>
-    </table>
-  </div>
+    </select>
+
+    <label>Monto:</label>
+    <input type="number" name="monto" step="0.01" required>
+
+    <label>Fecha:</label>
+    <input type="date" name="fecha" required>
+
+    <label>Mes:</label>
+    <input type="text" name="mes" placeholder="Ej: Octubre 2025" required>
+
+    <button type="submit">Registrar Pago</button>
+</form>
+
+<h3>Lista de Pagos</h3>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Cliente</th>
+        <th>Monto</th>
+        <th>Fecha</th>
+        <th>Mes</th>
+        <th>Acciones</th>
+    </tr>
+    {% for p in pagos %}
+    <tr>
+        <td>{{ p['id'] }}</td>
+        <td>{{ p['nombre'] }}</td>
+        <td>${{ p['monto'] }}</td>
+        <td>{{ p['fecha'] }}</td>
+        <td>{{ p['mes'] }}</td>
+        <td>
+            <a href="{{ url_for('borrar_pago', id=p['id']) }}" class="btn delete">Eliminar</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<div class="export-buttons">
+    <a href="{{ url_for('exportar_excel') }}" class="btn success">Exportar Excel</a>
+    <a href="{{ url_for('exportar_pdf') }}" class="btn info">Exportar PDF</a>
 </div>
 {% endblock %}
