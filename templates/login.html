@@ -2,26 +2,73 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Iniciar Sesión - TECNOENLACE</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inicio de Sesión - TECNOENLACE</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #004aad, #007bff);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background: white;
+            color: black;
+            border-radius: 12px;
+            padding: 30px;
+            width: 320px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #004aad;
+        }
+        input[type="text"], input[type="password"] {
+            width: 90%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #aaa;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            background-color: #004aad;
+            color: white;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #00357a;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+    </style>
 </head>
 <body>
+
     <div class="login-container">
-        <h2>Iniciar Sesión</h2>
-        <form method="POST">
-            <label>Usuario:</label>
-            <input type="text" name="usuario" required>
-            <label>Contraseña:</label>
-            <input type="password" name="contrasena" required>
-            <button type="submit">Entrar</button>
+        <h2>TECNOENLACE</h2>
+        <form method="POST" action="/">
+            <input type="text" name="username" placeholder="Usuario" required>
+            <input type="password" name="password" placeholder="Contraseña" required>
+            <button type="submit">Ingresar</button>
         </form>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert {{ category }}">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        {% if error %}
+        <p class="error">{{ error }}</p>
+        {% endif %}
     </div>
+
 </body>
 </html>
