@@ -1,30 +1,55 @@
-{% extends "layout.html" %}
-{% block content %}
-<h2>Gestión de Clientes</h2>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestión de Clientes</title>
+    <style>
+        body { font-family: Arial; background: #f4f4f4; margin: 40px; }
+        table { width: 60%; margin: auto; border-collapse: collapse; background: white; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background: #007bff; color: white; }
+        form { text-align: center; margin-bottom: 20px; }
+        input { padding: 8px; margin: 5px; }
+        button { padding: 8px 12px; border: none; background: #007bff; color: white; cursor: pointer; border-radius: 5px; }
+        button:hover { background: #0056b3; }
+        a.btn { text-decoration: none; color: white; padding: 6px 10px; border-radius: 4px; }
+        .activo { background: green; }
+        .cortado { background: red; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Clientes</h1>
+    <form action="/agregar" method="POST">
+        <input type="text" name="nombre" placeholder="Nombre" required>
+        <input type="text" name="telefono" placeholder="Teléfono" required>
+        <button type="submit">Agregar Cliente</button>
+    </form>
 
-<table>
-    <tr>
-        <th>ID</th>
-        <th>Nombre</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-    </tr>
-    {% for c in clientes %}
-    <tr>
-        <td>{{ c['id'] }}</td>
-        <td>{{ c['nombre'] }}</td>
-        <td>{{ c['estado'] }}</td>
-        <td>
-            {% if c['estado'] == 'Activo' %}
-                <a href="{{ url_for('cortar', id=c['id']) }}" class="btn danger">Cortar</a>
-            {% else %}
-                <a href="{{ url_for('activar', id=c['id']) }}" class="btn success">Activar</a>
-            {% endif %}
-            <a href="{{ url_for('borrar_cliente', id=c['id']) }}" class="btn delete">Eliminar</a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-{% endblock %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th>Acción</th>
+        </tr>
+        {% for c in clientes %}
+        <tr>
+            <td>{{ c.id }}</td>
+            <td>{{ c.nombre }}</td>
+            <td>{{ c.telefono }}</td>
+            <td>{{ c.estado }}</td>
+            <td>
+                {% if c.estado == "Activo" %}
+                    <a class="btn cortado" href="/suspender/{{ c.id }}">Suspender</a>
+                {% else %}
+                    <a class="btn activo" href="/activar/{{ c.id }}">Activar</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>
 
 
