@@ -1,13 +1,27 @@
-
-{% extends "layout.html" %}
-{% block content %}
-<div class="max-w-md mx-auto card p-6 rounded-md">
-  <h2 class="text-xl font-semibold mb-4">Iniciar sesión - TECNOENLACE</h2>
-  {% if error %}<div class="mb-3 p-2 rounded bg-red-700">{{ error }}</div>{% endif %}
-  <form method="post" class="space-y-3">
-    <div><label class="block text-sm">Usuario</label><input name="username" required class="w-full mt-1 p-2 rounded bg-gray-800"/></div>
-    <div><label class="block text-sm">Clave</label><input type="password" name="password" required class="w-full mt-1 p-2 rounded bg-gray-800"/></div>
-    <div><button class="w-full py-2 rounded bg-sky-600 hover:bg-sky-500">Ingresar</button></div>
-  </form>
-</div>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión - TECNOENLACE</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+        <form method="POST">
+            <label>Usuario:</label>
+            <input type="text" name="usuario" required>
+            <label>Contraseña:</label>
+            <input type="password" name="contrasena" required>
+            <button type="submit">Entrar</button>
+        </form>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+</body>
+</html>
