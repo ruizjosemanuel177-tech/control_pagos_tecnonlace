@@ -1,130 +1,208 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session, send_file
 import sqlite3
-import os
+import pandas as pd
+from io import BytesIO
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 
 app = Flask(__name__)
+app.secret_key = "tecnoenlace_secret"
 
-# =========================
-# 🔹 CONEXIÓN A BASE DE DATOS
-# =========================
-def get_db_connection():
-    conn = sqlite3.connect("database.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+# ===========================
+#  CONEXIÓN Y BASE DE DATOS
+# ===========================
+DB_NAME = "tecnoenlace.db"
 
-
-# =========================
-# 🔹 INICIALIZAR BASE DE DATOS
-# =========================
 def init_db():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("""
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        # Crear tabla clientes si no existe
+        cur.execute("""
         CREATE TABLE IF NOT EXISTS clientes (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             nombre TEXT NOT NULL,
-            telefono TEXT NOT NULL,
-            estado TEXT DEFAULT 'Activo'
+            estado TEXT DEFAULT 'Corte'
         )
-    """)
-    conn.commit()
-    conn.close()
-
-
-# =========================
-# 🔹 REPARAR BASE DE DATOS (si falta columna)
-# =========================
-def fix_db():
-    conn = sqlite3.connect("database.db")
-    cur = conn.cursor()
-    cur.execute("PRAGMA table_info(clientes)")
-    cols = [c[1] for c in cur.fetchall()]
-    if "estado" not in cols:
-        print("Añadiendo columna 'estado' a la tabla clientes...")
-        cur.execute("ALTER TABLE clientes ADD COLUMN estado TEXT DEFAULT 'Activo'")
+        """)
+        # Crear tabla pagos si no existe
+        cur.execute("""
+        CREATE TABLE IF NOT EXISTS pagos (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            cliente_id INTEGER,
+            monto REAL,
+            fecha TEXT,
+            mes TEXT,
+            FOREIGN KEY(cliente_id) REFERENCES clientes(id)
+        )
+        """)
+        # Insertar lista inicial de clientes si la tabla está vacía
+        cur.execute("SELECT COUNT(*) FROM clientes")
+        if cur.fetchone()[0] == 0:
+            clientes = [
+                'Edgar Arevalo','Adonay Ledezma','Luis Angel Agredo','Andres Collazos','Asprosi','Yazmin Lopez',
+                'Moises Lopez','Jarvy Ledezma','Yaneth Ordoñez','Daniela Muñoz','Jose Luis Cruz','Oscar Ordoñez',
+                'Aleida Chicangana','Jhonatan Salazar','Xiomara Dorado','Isabela Ausecha','Angel Cordoba',
+                'Deyanira Lopez','Wilmer Diaz','Jose Wifar Ordoñez','Brayan Felipe Alvarez','Jaiver Ordoñez',
+                'Ximena Hernandez','Eriberto Delgado','Quenier Campo','Yolanda Garzon','Mariela Avendaño',
+                'Ivan Perez','Benicio Paz','Leni Campo','Gustavo Martinez','Arnovi Paz','Eider Alexander Dorado',
+                'Andres Muñoz','Lamet Quijano','Deyanira Ausecha','Yohan Ledezma','Anderson Paz','Eliana Mosquera'
+            ]
+            for nombre in clientes:
+                cur.execute("INSERT INTO clientes (nombre, estado) VALUES (?, 'Corte')", (nombre,))
         conn.commit()
-        print("✅ Columna 'estado' añadida correctamente.")
-    else:
-        print("✅ La columna 'estado' ya existe.")
-    conn.close()
 
+# ===========================
+#       LOGIN
+# ===========================
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = request.form["username"]
+        password = request.form["password"]
+        if user == "TECNOENLACE" and password == "TECNOENLACE2025":
+            session["user"] = user
+            return redirect(url_for("dashboard"))
+        else:
+            return render_template("login.html", error="Credenciales incorrectas")
+    return render_template("login.html")
 
-# =========================
-# 🔹 RUTAS
-# =========================
-@app.route("/")
-def index():
-    return redirect(url_for("clientes"))
+# ===========================
+#     DASHBOARD PRINCIPAL
+# ===========================
+@app.route("/dashboard")
+def dashboard():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT COUNT(*) FROM clientes")
+        total = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM clientes WHERE estado='Activo'")
+        activos = cur.fetchone()[0]
+        cur.execute("SELECT COUNT(*) FROM clientes WHERE estado='Corte'")
+        cortados = cur.fetchone()[0]
+    return render_template("dashboard.html", total=total, activos=activos, cortados=cortados)
 
-
+# ===========================
+#     CLIENTES CRUD
+# ===========================
 @app.route("/clientes")
 def clientes():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM clientes")
-    data = cur.fetchall()
-    conn.close()
-    return render_template("clientes.html", clientes=data)
-
+    if "user" not in session:
+        return redirect(url_for("login"))
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM clientes")
+        lista = cur.fetchall()
+    return render_template("clientes.html", clientes=lista)
 
 @app.route("/agregar", methods=["POST"])
 def agregar():
     nombre = request.form["nombre"]
-    telefono = request.form["telefono"]
-
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("INSERT INTO clientes (nombre, telefono, estado) VALUES (?, ?, 'Activo')", (nombre, telefono))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO clientes (nombre, estado) VALUES (?, 'Corte')", (nombre,))
+        conn.commit()
     return redirect(url_for("clientes"))
 
-
-@app.route("/suspender/<int:id>")
-def suspender(id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("UPDATE clientes SET estado='Cortado' WHERE id=?", (id,))
-    conn.commit()
-    conn.close()
+@app.route("/eliminar/<int:id>")
+def eliminar(id):
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("DELETE FROM clientes WHERE id=?", (id,))
+        conn.commit()
     return redirect(url_for("clientes"))
-
 
 @app.route("/activar/<int:id>")
 def activar(id):
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute("UPDATE clientes SET estado='Activo' WHERE id=?", (id,))
-    conn.commit()
-    conn.close()
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("UPDATE clientes SET estado='Activo' WHERE id=?", (id,))
+        conn.commit()
     return redirect(url_for("clientes"))
 
+@app.route("/cortar/<int:id>")
+def cortar(id):
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("UPDATE clientes SET estado='Corte' WHERE id=?", (id,))
+        conn.commit()
+    return redirect(url_for("clientes"))
 
-@app.route("/dashboard")
-def dashboard():
-    conn = get_db_connection()
-    cur = conn.cursor()
+# ===========================
+#     PAGOS (ARREGLADO)
+# ===========================
+@app.route("/pagos")
+def pagos():
+    if "user" not in session:
+        return redirect(url_for("login"))
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT pagos.id, clientes.nombre, pagos.monto, pagos.fecha, pagos.mes
+            FROM pagos
+            JOIN clientes ON pagos.cliente_id = clientes.id
+        """)
+        lista_pagos = cur.fetchall()
+    return render_template("pagos.html", pagos=lista_pagos)
 
-    cur.execute("SELECT COUNT(*) as total FROM clientes")
-    total = cur.fetchone()["total"]
+# Registrar pago y activar automáticamente el servicio
+@app.route("/registrar_pago", methods=["POST"])
+def registrar_pago():
+    cliente_id = request.form["cliente_id"]
+    monto = request.form["monto"]
+    fecha = request.form["fecha"]
+    mes = request.form["mes"]
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO pagos (cliente_id, monto, fecha, mes) VALUES (?, ?, ?, ?)", (cliente_id, monto, fecha, mes))
+        cur.execute("UPDATE clientes SET estado='Activo' WHERE id=?", (cliente_id,))
+        conn.commit()
+    return redirect(url_for("pagos"))
 
-    cur.execute("SELECT COUNT(*) as activos FROM clientes WHERE estado='Activo'")
-    activos = cur.fetchone()["activos"]
+# ===========================
+#   EXPORTAR DATOS
+# ===========================
+@app.route("/exportar_excel")
+def exportar_excel():
+    with sqlite3.connect(DB_NAME) as conn:
+        df = pd.read_sql_query("SELECT * FROM pagos", conn)
+    output = BytesIO()
+    df.to_excel(output, index=False)
+    output.seek(0)
+    return send_file(output, as_attachment=True, download_name="pagos.xlsx", mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
 
-    cur.execute("SELECT COUNT(*) as cortados FROM clientes WHERE estado='Cortado'")
-    cortados = cur.fetchone()["cortados"]
+@app.route("/exportar_pdf")
+def exportar_pdf():
+    buffer = BytesIO()
+    c = canvas.Canvas(buffer, pagesize=letter)
+    c.drawString(100, 750, "Reporte de Pagos - TECNOENLACE")
+    y = 720
+    with sqlite3.connect(DB_NAME) as conn:
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM pagos")
+        pagos = cur.fetchall()
+    for p in pagos:
+        c.drawString(100, y, f"ID: {p[0]} | Cliente: {p[1]} | Monto: {p[2]} | Fecha: {p[3]} | Mes: {p[4]}")
+        y -= 20
+    c.save()
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True, download_name="pagos.pdf", mimetype="application/pdf")
 
-    conn.close()
-    return render_template("dashboard.html", total=total, activos=activos, cortados=cortados)
+# ===========================
+#   CERRAR SESIÓN
+# ===========================
+@app.route("/logout")
+def logout():
+    session.pop("user", None)
+    return redirect(url_for("login"))
 
-
-# =========================
-# 🔹 INICIO DE APLICACIÓN
-# =========================
+# ===========================
+#     INICIALIZAR APP
+# ===========================
 if __name__ == "__main__":
-    init_db()   # Crea la tabla si no existe
-    fix_db()    # Corrige estructura si falta columna
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    init_db()
+    app.run(debug=True, host="0.0.0.0")
+
 
 
