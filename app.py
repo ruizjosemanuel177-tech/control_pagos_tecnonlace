@@ -57,8 +57,10 @@ def guardar_pago():
 def salir():
     return redirect(url_for('dashboard'))
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
+if __name__ == "__main__":
+    init_db()   # Crea la tabla si no existe
+    fix_db()    # Corrige estructura si falta columna
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
 
 
