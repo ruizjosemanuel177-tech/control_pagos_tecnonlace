@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TECNOENLACE — Panel</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- Login -->
+    <div id="login" class="card">
+      <h2>Iniciar sesión - TECNOENLACE</h2>
+      <label>Usuario</label>
+      <input id="username" value="TECNOENLACE" />
+      <label>Contraseña</label>
+      <input id="password" type="password" value="TECNOENLACE2025" />
+      <button id="btnLogin">Entrar</button>
+      <div id="loginErr" class="error"></div>
+    </div>
+
+    <!-- Main UI -->
+    <div id="main" style="display:none;">
+      <header>
+        <h1>TECNOENLACE - Gestión</h1>
+        <div>
+          <button id="btnLogout">Cerrar sesión</button>
+        </div>
+      </header>
+
+      <section class="panel">
+        <h3>Usuarios</h3>
+        <div class="row">
+          <input id="newUserName" placeholder="Nombre nuevo usuario" />
+          <button id="btnAddUser">Agregar</button>
+        </div>
+        <table id="usersTable">
+          <thead><tr><th>ID</th><th>Nombre</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </section>
+
+      <section class="panel">
+        <h3>Pagos</h3>
+        <div class="row">
+          <select id="paymentUser"></select>
+          <input id="paymentAmount" placeholder="Monto" type="number" />
+          <input id="paymentDate" type="date" />
+          <input id="paymentNotes" placeholder="Notas (opcional)" />
+          <button id="btnAddPayment">Registrar pago</button>
+        </div>
+        <table id="paymentsTable">
+          <thead><tr><th>ID</th><th>Usuario</th><th>Monto</th><th>Fecha</th><th>Notas</th><th>Acciones</th></tr></thead>
+          <tbody></tbody>
+        </table>
+        <div class="row">
+          <a href="/export/payments.xlsx">Exportar Excel</a>
+          <a href="/export/payments.pdf">Exportar PDF</a>
+        </div>
+      </section>
+    </div>
+  </div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

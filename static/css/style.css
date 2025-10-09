@@ -1,0 +1,16 @@
+body {
+    background-color: #e9ecef;
+    font-family: Arial, sans-serif;
+}
+
+.card {
+    border-radius: 10px;
+}
+
+.table td, .table th {
+    vertical-align: middle;
+}
+
+.btn-toggle {
+    width: 100px;
+}

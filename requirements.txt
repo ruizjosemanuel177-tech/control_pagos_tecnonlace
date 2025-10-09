@@ -1,4 +1,6 @@
-flask
-pandas
+Flask==3.2.2
+Flask-Session==0.5.0
+pandas==2.2.3
 openpyxl
 reportlab
+psycopg2-binary==2.9.9
